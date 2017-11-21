@@ -62,7 +62,7 @@ example `esp32_` for ESP32 and ESP-IDF metrics.
 ```
 # HELP esp32_chip_info ESP32 Chip Information
 # TYPE esp32_chip_info gauge
-esp32_chip_info{model=0,cores=2,revision=1,features=32} 1
+esp32_chip_info{model=0,cores=2,revision=1,features=32,sdk="master"} 1
 # HELP esp32_num_tasks ESP32 FreeRTOS task count
 # TYPE esp32_num_tasks gauge
 esp32_num_tasks 9
@@ -81,15 +81,15 @@ static variables and getters provided. Taking `mqtt` as an example:
 
 ```
 #if MGOS_HAVE_PROMETHEUS_METRICS
-static uint32_t metrics_mqtt_sent_topics = 0;
-static uint32_t metrics_mqtt_sent_topics_bytes = 0;
-static uint32_t metrics_mqtt_received_topics = 0;
-static uint32_t metrics_mqtt_received_topics_bytes = 0;
+static uint32_t metrics_mqtt_sent_topics_count = 0;
+static uint32_t metrics_mqtt_sent_topics_bytes_total = 0;
+static uint32_t metrics_mqtt_received_topics_count = 0;
+static uint32_t metrics_mqtt_received_topics_bytes_total = 0;
 
-uint32_t mgos_mqtt_get_metrics_mqtt_sent_topics (void) { return metrics_mqtt_sent_topics; }
-uint32_t mgos_mqtt_get_metrics_mqtt_sent_topics_bytes (void) { return metrics_mqtt_sent_topics_bytes; }
-uint32_t mgos_mqtt_get_metrics_mqtt_received_topics (void) { return metrics_mqtt_received_topics; }
-uint32_t mgos_mqtt_get_metrics_mqtt_received_topics_bytes (void) { return metrics_mqtt_received_topics_bytes; }
+uint32_t mgos_mqtt_get_metrics_mqtt_sent_topics_count (void) { return metrics_mqtt_sent_topics_count; }
+uint32_t mgos_mqtt_get_metrics_mqtt_sent_topics_bytes_total (void) { return metrics_mqtt_sent_topics_bytes_total; }
+uint32_t mgos_mqtt_get_metrics_mqtt_received_topics_count (void) { return metrics_mqtt_received_topics_count; }
+uint32_t mgos_mqtt_get_metrics_mqtt_received_topics_bytes_total (void) { return metrics_mqtt_received_topics_bytes_total; }
 #endif // MGOS_HAVE_PROMETHEUS_METRICS
 ```
 
@@ -115,18 +115,18 @@ example:
 
 #if MGOS_HAVE_MQTT
 static void metrics_mqtt(struct mg_connection *nc) {
-  mg_printf(nc, "# HELP mgos_mqtt_sent_topics MQTT topics sent\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics counter\r\n");
-  mg_printf(nc, "mgos_mqtt_sent_topics %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics());
-  mg_printf(nc, "# HELP mgos_mqtt_sent_topics_bytes Total bytes sent in MQTT topics\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_bytes counter\r\n");
-  mg_printf(nc, "mgos_mqtt_sent_topics_bytes %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics_bytes());
-  mg_printf(nc, "# HELP mgos_mqtt_received_topics MQTT topics sent\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_received_topics counter\r\n");
-  mg_printf(nc, "mgos_mqtt_received_topics %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics());
-  mg_printf(nc, "# HELP mgos_mqtt_received_topics_bytes Total bytes received in MQTT topics\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_received_topics_bytes counter\r\n");
-  mg_printf(nc, "mgos_mqtt_received_topics_bytes %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics_bytes());
+  mg_printf(nc, "# HELP mgos_mqtt_sent_topics_count MQTT topics sent\r\n");
+  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_count counter\r\n");
+  mg_printf(nc, "mgos_mqtt_sent_topics_count %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics_count());
+  mg_printf(nc, "# HELP mgos_mqtt_sent_topics_bytes_total Total bytes sent in MQTT topics\r\n");
+  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_bytes_total counter\r\n");
+  mg_printf(nc, "mgos_mqtt_sent_topics_bytes_total %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics_bytes_total());
+  mg_printf(nc, "# HELP mgos_mqtt_received_topics_count MQTT topics sent\r\n");
+  mg_printf(nc, "# TYPE mgos_mqtt_received_topics_count counter\r\n");
+  mg_printf(nc, "mgos_mqtt_received_topics_count %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics_count());
+  mg_printf(nc, "# HELP mgos_mqtt_received_topics_bytes_total Total bytes received in MQTT topics\r\n");
+  mg_printf(nc, "# TYPE mgos_mqtt_received_topics_bytes_total counter\r\n");
+  mg_printf(nc, "mgos_mqtt_received_topics_bytes_total %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics_bytes_total());
 }
 #endif // MGOS_HAVE_MQTT
 ```
