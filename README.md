@@ -115,9 +115,17 @@ example:
 
 #ifdef MGOS_HAVE_MQTT
 static void metrics_mqtt(struct mg_connection *nc) {
+  mg_printf(nc, "# HELP mgos_mqtt_sent_topics MQTT topics sent\r\n");
+  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics counter\r\n");
   mg_printf(nc, "mgos_mqtt_sent_topics %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics());
+  mg_printf(nc, "# HELP mgos_mqtt_sent_topics_bytes Total bytes sent in MQTT topics\r\n");
+  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_bytes counter\r\n");
   mg_printf(nc, "mgos_mqtt_sent_topics_bytes %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics_bytes());
+  mg_printf(nc, "# HELP mgos_mqtt_received_topics MQTT topics sent\r\n");
+  mg_printf(nc, "# TYPE mgos_mqtt_received_topics counter\r\n");
   mg_printf(nc, "mgos_mqtt_received_topics %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics());
+  mg_printf(nc, "# HELP mgos_mqtt_received_topics_bytes Total bytes received in MQTT topics\r\n");
+  mg_printf(nc, "# TYPE mgos_mqtt_received_topics_bytes counter\r\n");
   mg_printf(nc, "mgos_mqtt_received_topics_bytes %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics_bytes());
 }
 #endif // MGOS_HAVE_MQTT
