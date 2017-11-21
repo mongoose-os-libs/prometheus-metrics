@@ -11,6 +11,14 @@
 #endif // MGOS_HAVE_MQTT
 
 
+static mgos_prometheus_metrics_fn_t s_prometheus_metrics_fn = NULL;
+static void *s_prometheus_metrics_fn_arg = NULL;
+
+void mgos_prometheus_metrics_set_handler(mgos_prometheus_metrics_fn_t fn, void *fn_arg) {
+  s_prometheus_metrics_fn = fn;
+  s_prometheus_metrics_fn_arg = fn_arg;
+}
+
 #ifdef MGOS_HAVE_MQTT
 static void metrics_mqtt(struct mg_connection *nc) {
   mg_printf(nc, "# HELP mgos_mqtt_sent_topics_count MQTT topics sent\r\n");
@@ -81,6 +89,9 @@ static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void
 #ifdef MGOS_HAVE_MQTT
   metrics_mqtt(nc);
 #endif // MGOS_HAVE_MQTT
+
+  if (s_prometheus_metrics_fn != NULL)
+    s_prometheus_metrics_fn(nc, s_prometheus_metrics_fn_arg);
 
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
