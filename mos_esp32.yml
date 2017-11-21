@@ -1,0 +1,3 @@
+sources:
+  - esp32/src
+  - src

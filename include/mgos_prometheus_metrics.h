@@ -4,3 +4,7 @@
  */
 
 #include "mgos.h"
+
+/* Platform specific extensions, see esp32/src/ for example
+ */
+void metrics_platform(struct mg_connection *nc);

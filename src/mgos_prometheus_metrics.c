@@ -6,28 +6,10 @@
 #include "mgos_prometheus_metrics.h"
 #include "mgos_http_server.h"
 #include "mgos_config.h"
-#include <esp_wifi.h>
-#include <esp_system.h>
-#include <freertos/task.h>
 #ifdef MGOS_HAVE_MQTT
 #include "mgos_mqtt.h"
 #endif // MGOS_HAVE_MQTT
 
-#ifdef MGOS_HAVE_WIFI
-static void metrics_wifi(struct mg_connection *nc) {
-  wifi_ap_record_t info;
-
-  if(0 != esp_wifi_sta_get_ap_info(&info))
-    return;
-
-  mg_printf(nc, "# HELP wifi_rssi WiFi RSSI\r\n");
-  mg_printf(nc, "# TYPE wifi_rssi gauge\r\n");
-  mg_printf(nc, "wifi_rssi %d\r\n", info.rssi);
-
-  return;
-}
-
-#endif // MGOS_HAVE_WIFI
 
 #ifdef MGOS_HAVE_MQTT
 static void metrics_mqtt(struct mg_connection *nc) {
@@ -44,21 +26,7 @@ static void metrics_mqtt(struct mg_connection *nc) {
   mg_printf(nc, "# TYPE mgos_mqtt_received_topics_bytes counter\r\n");
   mg_printf(nc, "mgos_mqtt_received_topics_bytes %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics_bytes());
 }
-
 #endif // MGOS_HAVE_MQTT
-
-static void metrics_esp32(struct mg_connection *nc) {
-  esp_chip_info_t ci;
-
-  esp_chip_info(&ci);
-  mg_printf(nc, "# HELP esp32_chip_info ESP32 Chip Information\r\n");
-  mg_printf(nc, "# TYPE esp32_chip_info gauge\r\n");
-  mg_printf(nc, "esp32_chip_info{model=%d,cores=%d,revision=%d,features=%x} 1\r\n", ci.model, ci.cores, ci.revision, ci.features );
-
-  mg_printf(nc, "# HELP esp32_num_tasks ESP32 FreeRTOS task count\r\n");
-  mg_printf(nc, "# TYPE esp32_num_tasks gauge\r\n");
-  mg_printf(nc, "esp32_num_tasks %d\r\n", uxTaskGetNumberOfTasks());
-}
 
 static void metrics_mgos(struct mg_connection *nc) {
   mg_printf(nc, "# HELP mgos_build Build info\r\n");
@@ -66,7 +34,7 @@ static void metrics_mgos(struct mg_connection *nc) {
   mg_printf(nc, "mgos_build{app=\"%s\",id=\"%s\",version=\"%s\"} 1\r\n", MGOS_APP, mgos_sys_ro_vars_get_fw_id(), mgos_sys_ro_vars_get_fw_version());
   mg_printf(nc, "# HELP mgos_platform Platform information\r\n");
   mg_printf(nc, "# TYPE mgos_platform gauge\r\n");
-  mg_printf(nc, "mgos_platform{arch=\"%s\",mac=\"%s\",idf=\"%s\"} 1\r\n", mgos_sys_ro_vars_get_arch(), mgos_sys_ro_vars_get_mac_address(), esp_get_idf_version());
+  mg_printf(nc, "mgos_platform{arch=\"%s\",mac=\"%s\"} 1\r\n", mgos_sys_ro_vars_get_arch(), mgos_sys_ro_vars_get_mac_address());
   mg_printf(nc, "# HELP mgos_uptime Uptime in seconds\r\n");
   mg_printf(nc, "# TYPE mgos_uptime counter\r\n");
   mg_printf(nc, "mgos_uptime %lu\r\n", (unsigned long) mgos_uptime());
@@ -107,16 +75,12 @@ static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void
   mg_printf(nc, "Connection: close\r\n");
   mg_printf(nc, "\r\n");
 
-  metrics_esp32(nc);
   metrics_mgos(nc);
+  metrics_platform(nc);
 
 #ifdef MGOS_HAVE_MQTT
   metrics_mqtt(nc);
 #endif // MGOS_HAVE_MQTT
-
-#ifdef MGOS_HAVE_WIFI
-  metrics_wifi(nc);
-#endif // MGOS_HAVE_WIFI
 
   nc->flags |= MG_F_SEND_AND_CLOSE;
 

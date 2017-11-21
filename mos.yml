@@ -2,6 +2,7 @@ author: Pim van Pelt <pim@ipng.nl>
 description: Implements Mongoose OS Prometheus Metrics endpoint
 type: lib
 version: 1.0
+platforms: [esp32, esp8266] 
 
 sources:
   - src

@@ -1,0 +1,3 @@
+sources:
+  - esp8266/src
+  - src
