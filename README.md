@@ -134,15 +134,18 @@ static void metrics_mqtt(struct mg_connection *nc) {
 and calling that from `metrics_handle()`.
 
 This mechanism provides bilateral _non intrusion_:
-*   Libraries will not be intruded by `prometheus-metrics` if it is not
-    included (based on guards on `MGOS_HAVE_PROMETHEUS_METRICS` statements).
-*   `prometheus-metrics` is will only pick up metrics from libraries that
-    are used (based on guards on `MGOS_HAVE_*` statements).
+*   Libraries will not be intruded by `prometheus-metrics` if they are not
+    included in the app's `mos.yml`. This is based on guards on 
+    `MGOS_HAVE_PROMETHEUS_METRICS` statements.
+*   The `prometheus-metrics` library will only pick up metrics from libraries
+    that are included in the app's `mos.yml`. This is based on guards on
+    `MGOS_HAVE_*` statements.
 
 
 #### Application Specific Metrics
 
-Users are able to add their own metrics by installing a handler function.
+Users are able to add their app's own metrics by installing a handler function,
+which is called at the end of `metrics_handle()`:
 
 ```
 #include "mgos_prometheus_metrics.h"
