@@ -80,7 +80,7 @@ by the define `MGOS_HAVE_PROMETHEUS_METRICS`. Metrics should be defined as
 static variables and getters provided. Taking `mqtt` as an example:
 
 ```
-#ifdef MGOS_HAVE_PROMETHEUS_METRICS
+#if MGOS_HAVE_PROMETHEUS_METRICS
 static uint32_t metrics_mqtt_sent_topics = 0;
 static uint32_t metrics_mqtt_sent_topics_bytes = 0;
 static uint32_t metrics_mqtt_received_topics = 0;
@@ -107,13 +107,13 @@ will compile in only libraries that are used. Staying with the `mqtt`
 example:
 
 ```
-#ifdef MGOS_HAVE_MQTT
+#if MGOS_HAVE_MQTT
 #include "mgos_mqtt.h"
 #endif // MGOS_HAVE_MQTT
 
 ...
 
-#ifdef MGOS_HAVE_MQTT
+#if MGOS_HAVE_MQTT
 static void metrics_mqtt(struct mg_connection *nc) {
   mg_printf(nc, "# HELP mgos_mqtt_sent_topics MQTT topics sent\r\n");
   mg_printf(nc, "# TYPE mgos_mqtt_sent_topics counter\r\n");
