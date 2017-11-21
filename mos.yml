@@ -1,0 +1,19 @@
+author: Pim van Pelt <pim@ipng.nl>
+description: Implements Mongoose OS Prometheus Metrics endpoint
+type: lib
+version: 1.0
+
+sources:
+  - src
+includes:
+  - include
+config_schema:
+
+libs:
+  - origin: https://github.com/mongoose-os-libs/http-server
+
+tags:
+  - c
+  - http
+
+manifest_version: 2017-09-29
