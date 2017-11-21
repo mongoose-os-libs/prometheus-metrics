@@ -5,6 +5,7 @@
 
 #include "mgos_prometheus_metrics.h"
 #include "mgos_http_server.h"
+#include "mgos_config.h"
 #include <esp_wifi.h>
 #include <esp_system.h>
 #include <freertos/task.h>
@@ -116,6 +117,8 @@ static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void
 }
 
 bool mgos_prometheus_metrics_init(void) {
-  mgos_register_http_endpoint("/metrics", metrics_handle, NULL);
+  if (mgos_sys_config_get_prometheus_server_enable())
+    mgos_register_http_endpoint(mgos_sys_config_get_prometheus_server_uri(), metrics_handle, NULL);
+
   return true;
 }
