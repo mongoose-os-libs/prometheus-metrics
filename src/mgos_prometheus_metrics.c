@@ -6,7 +6,7 @@
 #include "mgos_prometheus_metrics.h"
 #include "mgos_http_server.h"
 #include "mgos_config.h"
-#ifdef MGOS_HAVE_MQTT
+#if MGOS_HAVE_MQTT
 #include "mgos_mqtt.h"
 #endif // MGOS_HAVE_MQTT
 
@@ -19,7 +19,7 @@ void mgos_prometheus_metrics_set_handler(mgos_prometheus_metrics_fn_t fn, void *
   s_prometheus_metrics_fn_arg = fn_arg;
 }
 
-#ifdef MGOS_HAVE_MQTT
+#if MGOS_HAVE_MQTT
 static void metrics_mqtt(struct mg_connection *nc) {
   mg_printf(nc, "# HELP mgos_mqtt_sent_topics_count MQTT topics sent\r\n");
   mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_count counter\r\n");
@@ -86,7 +86,7 @@ static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void
   metrics_mgos(nc);
   metrics_platform(nc);
 
-#ifdef MGOS_HAVE_MQTT
+#if MGOS_HAVE_MQTT
   metrics_mqtt(nc);
 #endif // MGOS_HAVE_MQTT
 

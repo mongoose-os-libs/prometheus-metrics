@@ -8,7 +8,7 @@
 #include <esp_system.h>
 #include <freertos/task.h>
 
-#ifdef MGOS_HAVE_WIFI
+#if MGOS_HAVE_WIFI
 static void metrics_wifi(struct mg_connection *nc) {
   wifi_ap_record_t info;
   int rssi;

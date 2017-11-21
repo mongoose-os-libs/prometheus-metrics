@@ -6,7 +6,7 @@
 #include "mgos_prometheus_metrics.h"
 #include "user_interface.h"
 
-#ifdef MGOS_HAVE_WIFI
+#if MGOS_HAVE_WIFI
 static void metrics_wifi(struct mg_connection *nc) {
   sint8 rssi;
   rssi = wifi_station_get_rssi();
