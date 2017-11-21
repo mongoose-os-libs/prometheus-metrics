@@ -32,7 +32,7 @@ void metrics_platform(struct mg_connection *nc) {
   esp_chip_info(&ci);
   mg_printf(nc, "# HELP esp32_chip_info ESP32 Chip Information\r\n");
   mg_printf(nc, "# TYPE esp32_chip_info gauge\r\n");
-  mg_printf(nc, "esp32_chip_info{model=%d,cores=%d,revision=%d,features=%x} 1\r\n", ci.model, ci.cores, ci.revision, ci.features );
+  mg_printf(nc, "esp32_chip_info{model=%d,cores=%d,revision=%d,features=%x,sdk=\"%s\"} 1\r\n", ci.model, ci.cores, ci.revision, ci.features, system_get_sdk_version());
 
   mg_printf(nc, "# HELP esp32_num_tasks ESP32 FreeRTOS task count\r\n");
   mg_printf(nc, "# TYPE esp32_num_tasks gauge\r\n");
