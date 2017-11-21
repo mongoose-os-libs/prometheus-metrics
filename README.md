@@ -54,7 +54,7 @@ mgos_uptime 1888
 mgos_heap_size 295076
 ```
 
-### Platform Specific Metrics
+#### Platform Specific Metrics
 
 Platform specific vitals are exposed using the `$platform_` prefix, for
 example `esp32_` for ESP32 and ESP-IDF metrics.
@@ -140,3 +140,20 @@ This mechanism provides bilateral _non intrusion_:
     are used (based on guards on `MGOS_HAVE_*` statements).
 
 
+#### Application Specific Metrics
+
+Users are able to add their own metrics by installing a handler function.
+
+```
+#include "mgos_prometheus_metrics.h"
+
+static void prometheus_metrics_fn(struct mg_connection *nc, void *fn_arg) {
+  mg_printf(nc, "# Hello World\r\n");
+  (void) fn_arg;
+}
+
+enum mgos_app_init_result mgos_app_init(void) {
+  mgos_prometheus_metrics_set_handler(prometheus_metrics_fn, NULL);
+  return MGOS_APP_INIT_SUCCESS;
+}
+```
