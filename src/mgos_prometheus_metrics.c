@@ -6,9 +6,6 @@
 #include "mgos_prometheus_metrics.h"
 #include "mgos_http_server.h"
 #include "mgos_config.h"
-#if MGOS_HAVE_MQTT
-#include "mgos_mqtt.h"
-#endif // MGOS_HAVE_MQTT
 
 struct metrics_handler {
   mgos_prometheus_metrics_fn_t handler;
@@ -31,24 +28,6 @@ void mgos_prometheus_metrics_add_handler(mgos_prometheus_metrics_fn_t handler, v
   mh->user_data = user_data;
   SLIST_INSERT_HEAD(&s_metrics_handlers, mh, entries);
 }
-
-
-#if MGOS_HAVE_MQTT
-static void metrics_mqtt(struct mg_connection *nc) {
-  mg_printf(nc, "# HELP mgos_mqtt_sent_topics_count MQTT topics sent\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_count counter\r\n");
-  mg_printf(nc, "mgos_mqtt_sent_topics_count %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics_count());
-  mg_printf(nc, "# HELP mgos_mqtt_sent_topics_bytes_total Total bytes sent in MQTT topics\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_bytes_total counter\r\n");
-  mg_printf(nc, "mgos_mqtt_sent_topics_bytes_total %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics_bytes_total());
-  mg_printf(nc, "# HELP mgos_mqtt_received_topics_count MQTT topics sent\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_received_topics_count counter\r\n");
-  mg_printf(nc, "mgos_mqtt_received_topics_count %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics_count());
-  mg_printf(nc, "# HELP mgos_mqtt_received_topics_bytes_total Total bytes received in MQTT topics\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_received_topics_bytes_total counter\r\n");
-  mg_printf(nc, "mgos_mqtt_received_topics_bytes_total %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics_bytes_total());
-}
-#endif // MGOS_HAVE_MQTT
 
 static void metrics_mgos(struct mg_connection *nc) {
   mg_printf(nc, "# HELP mgos_build Build info\r\n");
@@ -99,10 +78,6 @@ static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void
 
   metrics_mgos(nc);
   metrics_platform(nc);
-
-#if MGOS_HAVE_MQTT
-  metrics_mqtt(nc);
-#endif // MGOS_HAVE_MQTT
 
   call_metrics_handlers(nc);
 
