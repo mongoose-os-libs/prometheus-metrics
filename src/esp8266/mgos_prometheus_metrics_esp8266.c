@@ -11,16 +11,13 @@ static void metrics_wifi(struct mg_connection *nc) {
   sint8 rssi;
   rssi = wifi_station_get_rssi();
 
-  mg_printf(nc, "# HELP wifi_rssi WiFi RSSI\r\n");
-  mg_printf(nc, "# TYPE wifi_rssi gauge\r\n");
-  mg_printf(nc, "wifi_rssi %d\r\n", rssi);
+  mgos_prometheus_metrics_printf(nc, GAUGE, "wifi_rssi", "WiFi RSSI", "%d", rssi);
 }
 #endif // MGOS_HAVE_WIFI
 
 void metrics_platform(struct mg_connection *nc) {
-  mg_printf(nc, "# HELP esp8266_chip_info ESP8266 Chip Information\r\n");
-  mg_printf(nc, "# TYPE esp8266_chip_info gauge\r\n");
-  mg_printf(nc, "esp8266_chip_info{sdk=\"%s\",cpu_freq=%u} 1\r\n", system_get_sdk_version(), system_get_cpu_freq());
+  mgos_prometheus_metrics_printf(nc, GAUGE, "esp8266_chip_info", "ESP8266 Chip Information",
+    "{sdk=\"%s\",cpu_freq=%u} 1", system_get_sdk_version(), system_get_cpu_freq());
 
 #if MGOS_HAVE_WIFI
   metrics_wifi(nc);

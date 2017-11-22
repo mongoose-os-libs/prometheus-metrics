@@ -88,18 +88,21 @@ static uint32_t metrics_mqtt_received_topics_count = 0;
 static uint32_t metrics_mqtt_received_topics_bytes_total = 0;
 
 static void metrics_mqtt(struct mg_connection *nc, void *user_data) {
-  mg_printf(nc, "# HELP mgos_mqtt_sent_topics_count MQTT topics sent\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_count counter\r\n");
-  mg_printf(nc, "mgos_mqtt_sent_topics_count %u\r\n", metrics_mqtt_sent_topics_count);
-  mg_printf(nc, "# HELP mgos_mqtt_sent_topics_bytes_total Total bytes sent in MQTT topics\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_bytes_total counter\r\n");
-  mg_printf(nc, "mgos_mqtt_sent_topics_bytes_total %u\r\n", metrics_mqtt_sent_topics_bytes_total);
-  mg_printf(nc, "# HELP mgos_mqtt_received_topics_count MQTT topics sent\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_received_topics_count counter\r\n");
-  mg_printf(nc, "mgos_mqtt_received_topics_count %u\r\n", metrics_mqtt_received_topics_count);
-  mg_printf(nc, "# HELP mgos_mqtt_received_topics_bytes_total Total bytes received in MQTT topics\r\n");
-  mg_printf(nc, "# TYPE mgos_mqtt_received_topics_bytes_total counter\r\n");
-  mg_printf(nc, "mgos_mqtt_received_topics_bytes_total %u\r\n", metrics_mqtt_received_topics_bytes_total);
+  mgos_prometheus_metrics_printf(nc, COUNTER,
+    "mgos_mqtt_sent_topics_count", "MQTT topics sent",
+    "%u", metrics_mqtt_sent_topics_count);
+
+  mgos_prometheus_metrics_printf(nc, COUNTER,
+    "mgos_mqtt_sent_topics_bytes_total", "Total bytes sent in MQTT topics",
+    "%u", metrics_mqtt_sent_topics_bytes_total);
+
+  mgos_prometheus_metrics_printf(nc, COUNTER,
+    "mgos_mqtt_received_topics_count", "MQTT topics sent",
+    "%u", metrics_mqtt_received_topics_count);
+
+  mgos_prometheus_metrics_printf(nc, COUNTER,
+    "mgos_mqtt_received_topics_bytes_total", "Total bytes received in MQTT topics",
+    "%u", metrics_mqtt_received_topics_bytes_total);
 
   (void) user_data;
 }

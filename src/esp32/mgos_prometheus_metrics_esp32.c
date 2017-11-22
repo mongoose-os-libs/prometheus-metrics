@@ -18,11 +18,7 @@ static void metrics_wifi(struct mg_connection *nc) {
   else
     rssi = info.rssi;
 
-  mg_printf(nc, "# HELP wifi_rssi WiFi RSSI\r\n");
-  mg_printf(nc, "# TYPE wifi_rssi gauge\r\n");
-  mg_printf(nc, "wifi_rssi %d\r\n", rssi);
-
-  return;
+  mgos_prometheus_metrics_printf(nc, GAUGE, "wifi_rssi", "WiFi RSSI", "%d", rssi);
 }
 #endif // MGOS_HAVE_WIFI
 
@@ -30,13 +26,11 @@ void metrics_platform(struct mg_connection *nc) {
   esp_chip_info_t ci;
 
   esp_chip_info(&ci);
-  mg_printf(nc, "# HELP esp32_chip_info ESP32 Chip Information\r\n");
-  mg_printf(nc, "# TYPE esp32_chip_info gauge\r\n");
-  mg_printf(nc, "esp32_chip_info{model=%d,cores=%d,revision=%d,features=%x,sdk=\"%s\"} 1\r\n", ci.model, ci.cores, ci.revision, ci.features, system_get_sdk_version());
+  mgos_prometheus_metrics_printf(nc, GAUGE, "esp32_chip_info", "ESP32 Chip Information",
+    "{model=%d,cores=%d,revision=%d,features=%x,sdk=\"%s\"} 1", ci.model, ci.cores, ci.revision, ci.features, system_get_sdk_version());
 
-  mg_printf(nc, "# HELP esp32_num_tasks ESP32 FreeRTOS task count\r\n");
-  mg_printf(nc, "# TYPE esp32_num_tasks gauge\r\n");
-  mg_printf(nc, "esp32_num_tasks %d\r\n", uxTaskGetNumberOfTasks());
+  mgos_prometheus_metrics_printf(nc, GAUGE, "esp32_num_tasks", "ESP32 FreeRTOS task count",
+    "%d", uxTaskGetNumberOfTasks());
 
 #if MGOS_HAVE_WIFI
   metrics_wifi(nc);
