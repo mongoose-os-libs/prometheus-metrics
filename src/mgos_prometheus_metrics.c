@@ -29,40 +29,51 @@ void mgos_prometheus_metrics_add_handler(mgos_prometheus_metrics_fn_t handler, v
   SLIST_INSERT_HEAD(&s_metrics_handlers, mh, entries);
 }
 
-static void metrics_mgos(struct mg_connection *nc) {
-  mg_printf(nc, "# HELP mgos_build Build info\r\n");
-  mg_printf(nc, "# TYPE mgos_build gauge\r\n");
-  mg_printf(nc, "mgos_build{app=\"%s\",id=\"%s\",version=\"%s\"} 1\r\n", MGOS_APP, mgos_sys_ro_vars_get_fw_id(), mgos_sys_ro_vars_get_fw_version());
-  mg_printf(nc, "# HELP mgos_platform Platform information\r\n");
-  mg_printf(nc, "# TYPE mgos_platform gauge\r\n");
-  mg_printf(nc, "mgos_platform{arch=\"%s\",mac=\"%s\"} 1\r\n", mgos_sys_ro_vars_get_arch(), mgos_sys_ro_vars_get_mac_address());
-  mg_printf(nc, "# HELP mgos_uptime Uptime in seconds\r\n");
-  mg_printf(nc, "# TYPE mgos_uptime counter\r\n");
-  mg_printf(nc, "mgos_uptime %lu\r\n", (unsigned long) mgos_uptime());
+void mgos_prometheus_metrics_printf(struct mg_connection *nc, enum mgos_prometheus_metrics_type_t type, const char *name, const char *descr, const char *fmt, ...) {
+  va_list ap;
+  mg_printf(nc, "# %s HELP %s\r\n", name, descr);
+  switch (type) {
+    case(COUNTER):
+      mg_printf(nc, "# %s TYPE counter\r\n", name);
+      break;
+    default:
+      mg_printf(nc, "# %s TYPE gauge\r\n", name);
+  }
+  mg_printf(nc, "%s%s", name, fmt[0]=='{' ? "" : " ");
+  va_start(ap, fmt);
+  mg_vprintf(nc, fmt, ap);
+  va_end(ap);
+  mg_printf(nc, "\r\n");
+  return;
+}
 
-  mg_printf(nc, "# HELP mgos_heap_size System memory size\r\n");
-  mg_printf(nc, "# TYPE mgos_heap_size gauge\r\n");
-  mg_printf(nc, "mgos_heap_size %u\r\n", mgos_get_heap_size());
-  mg_printf(nc, "# HELP mgos_free_heap_size System free memory\r\n");
-  mg_printf(nc, "# TYPE mgos_free_heap_size gauge\r\n");
-  mg_printf(nc, "mgos_free_heap_size %u\r\n", mgos_get_free_heap_size());
-  mg_printf(nc, "# HELP mgos_min_free_heap_size System minimal watermark of free memory\r\n");
-  mg_printf(nc, "# TYPE mgos_min_free_heap_size gauge\r\n");
-  mg_printf(nc, "mgos_min_free_heap_size %u\r\n", mgos_get_min_free_heap_size());
-/*
-  mg_printf(nc, "# HELP mgos_fs_memory_usage filesystem memory usage\r\n");
-  mg_printf(nc, "# TYPE mgos_fs_memory_usage gauge\r\n");
-  mg_printf(nc, "mgos_fs_memory_usage %u\r\n", mgos_get_fs_memory_usage());
-*/
-  mg_printf(nc, "# HELP mgos_fs_size filesystem size\r\n");
-  mg_printf(nc, "# TYPE mgos_fs_size gauge\r\n");
-  mg_printf(nc, "mgos_fs_size %u\r\n", mgos_get_fs_size());
-  mg_printf(nc, "# HELP mgos_free_fs_size filesystem free space\r\n");
-  mg_printf(nc, "# TYPE mgos_free_fs_size gauge\r\n");
-  mg_printf(nc, "mgos_free_fs_size %u\r\n", mgos_get_free_fs_size());
-  mg_printf(nc, "# HELP mgos_cpu_freq CPU frequency in Hz\r\n");
-  mg_printf(nc, "# TYPE mgos_cpu_freq gauge\r\n");
-  mg_printf(nc, "mgos_cpu_freq %u\r\n", mgos_get_cpu_freq());
+static void metrics_mgos(struct mg_connection *nc) {
+  mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_build", "Build info", 
+    "{app=\"%s\",id=\"%s\",version=\"%s\"} 1", MGOS_APP, mgos_sys_ro_vars_get_fw_id(), mgos_sys_ro_vars_get_fw_version());
+
+  mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_platform", "Platform info", 
+    "{arch=\"%s\",mac=\"%s\"} 1", mgos_sys_ro_vars_get_arch(), mgos_sys_ro_vars_get_mac_address());
+
+  mgos_prometheus_metrics_printf(nc, COUNTER, "mgos_uptime", "Uptime in seconds", 
+    "%lu", (unsigned long) mgos_uptime());
+
+  mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_heap_size", "System memory size", 
+    "%u", mgos_get_heap_size());
+
+  mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_free_heap_size", "System free memory", 
+    "%u", mgos_get_free_heap_size());
+
+  mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_min_free_heap_size", "System minimal watermark of free memory", 
+    "%u", mgos_get_min_free_heap_size());
+
+  mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_fs_size", "Filesystem size", 
+    "%u", mgos_get_fs_size());
+
+  mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_free_fs_size", "Filesystem free space", 
+    "%u", mgos_get_free_fs_size());
+
+  mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_cpu_freq", "CPU Frequency in Hz", 
+    "%u", mgos_get_cpu_freq());
 }
 
 static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void *user_data) {
