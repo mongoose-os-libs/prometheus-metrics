@@ -10,14 +10,28 @@
 #include "mgos_mqtt.h"
 #endif // MGOS_HAVE_MQTT
 
+struct metrics_handler {
+  mgos_prometheus_metrics_fn_t handler;
+  void *user_data;
+  SLIST_ENTRY(metrics_handler) entries;
+};
 
-static mgos_prometheus_metrics_fn_t s_prometheus_metrics_fn = NULL;
-static void *s_prometheus_metrics_fn_arg = NULL;
+SLIST_HEAD(metrics_handlers, metrics_handler) s_metrics_handlers;
 
-void mgos_prometheus_metrics_set_handler(mgos_prometheus_metrics_fn_t fn, void *fn_arg) {
-  s_prometheus_metrics_fn = fn;
-  s_prometheus_metrics_fn_arg = fn_arg;
+static void call_metrics_handlers(struct mg_connection *nc) {
+  struct metrics_handler *mh;
+  SLIST_FOREACH(mh, &s_metrics_handlers, entries) {
+    mh->handler(nc, mh->user_data);
+  }
 }
+
+void mgos_prometheus_metrics_add_handler(mgos_prometheus_metrics_fn_t handler, void *user_data) {
+  struct metrics_handler *mh = (struct metrics_handler *) calloc(1, sizeof(*mh));
+  mh->handler = handler;
+  mh->user_data = user_data;
+  SLIST_INSERT_HEAD(&s_metrics_handlers, mh, entries);
+}
+
 
 #if MGOS_HAVE_MQTT
 static void metrics_mqtt(struct mg_connection *nc) {
@@ -90,8 +104,7 @@ static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void
   metrics_mqtt(nc);
 #endif // MGOS_HAVE_MQTT
 
-  if (s_prometheus_metrics_fn != NULL)
-    s_prometheus_metrics_fn(nc, s_prometheus_metrics_fn_arg);
+  call_metrics_handlers(nc);
 
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
