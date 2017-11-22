@@ -70,51 +70,24 @@ esp32_num_tasks 9
 
 #### Library Specific Metrics
 
-Exposing library metrics is a cooperation between the library owner and
-this library. 
-
-##### Library implementation
-
 Library owners gate the code that creates, updates and exposes the metrics
 by the define `MGOS_HAVE_PROMETHEUS_METRICS`. Metrics should be defined as
-static variables and getters provided. Taking `mqtt` as an example:
+static variables to stay private to the implementation. Then, a callback
+function is installed, and `prometheus-metrics` will loop over all
+registered callbacks to allow them to add their metrics to the output.
+
+Taking `mqtt` as an example:
 
 ```
 #if MGOS_HAVE_PROMETHEUS_METRICS
+#include "mgos_prometheus_metrics.h"
+
 static uint32_t metrics_mqtt_sent_topics_count = 0;
 static uint32_t metrics_mqtt_sent_topics_bytes_total = 0;
 static uint32_t metrics_mqtt_received_topics_count = 0;
 static uint32_t metrics_mqtt_received_topics_bytes_total = 0;
 
-uint32_t mgos_mqtt_get_metrics_mqtt_sent_topics_count (void) { return metrics_mqtt_sent_topics_count; }
-uint32_t mgos_mqtt_get_metrics_mqtt_sent_topics_bytes_total (void) { return metrics_mqtt_sent_topics_bytes_total; }
-uint32_t mgos_mqtt_get_metrics_mqtt_received_topics_count (void) { return metrics_mqtt_received_topics_count; }
-uint32_t mgos_mqtt_get_metrics_mqtt_received_topics_bytes_total (void) { return metrics_mqtt_received_topics_bytes_total; }
-#endif // MGOS_HAVE_PROMETHEUS_METRICS
-```
-
-As mentioned above, if the `prometheus-metrics` library is not included in
-the app's `mos.yml` manifest, no code will be compiled which makes the addition
-_non intrusive_.
-
-##### Prometheus Metrics implementation
-
-After the library specific metrics are exposed, they can be picked up in
-`prometheus-metrics` by writing a static method for the library, prefixed
-by `metrics_` taking the `mg_connection` to output to. This code is guarded
-by `MGOS_HAVE_*` statements, so that the `prometheus-metrics` library
-will compile in only libraries that are used. Staying with the `mqtt`
-example:
-
-```
-#if MGOS_HAVE_MQTT
-#include "mgos_mqtt.h"
-#endif // MGOS_HAVE_MQTT
-
-...
-
-#if MGOS_HAVE_MQTT
-static void metrics_mqtt(struct mg_connection *nc) {
+static void metrics_mqtt(struct mg_connection *nc, void *user_data) {
   mg_printf(nc, "# HELP mgos_mqtt_sent_topics_count MQTT topics sent\r\n");
   mg_printf(nc, "# TYPE mgos_mqtt_sent_topics_count counter\r\n");
   mg_printf(nc, "mgos_mqtt_sent_topics_count %u\r\n", mgos_mqtt_get_metrics_mqtt_sent_topics_count());
@@ -127,36 +100,43 @@ static void metrics_mqtt(struct mg_connection *nc) {
   mg_printf(nc, "# HELP mgos_mqtt_received_topics_bytes_total Total bytes received in MQTT topics\r\n");
   mg_printf(nc, "# TYPE mgos_mqtt_received_topics_bytes_total counter\r\n");
   mg_printf(nc, "mgos_mqtt_received_topics_bytes_total %u\r\n", mgos_mqtt_get_metrics_mqtt_received_topics_bytes_total());
+
+  (void) user_data;
 }
-#endif // MGOS_HAVE_MQTT
+#endif // MGOS_HAVE_PROMETHEUS_METRICS
 ```
 
-and calling that from `metrics_handle()`.
+Then in the library's `init` function, register the callback:
 
-This mechanism provides bilateral _non intrusion_:
-*   Libraries will not be intruded by `prometheus-metrics` if they are not
-    included in the app's `mos.yml`. This is based on guards on 
-    `MGOS_HAVE_PROMETHEUS_METRICS` statements.
-*   The `prometheus-metrics` library will only pick up metrics from libraries
-    that are included in the app's `mos.yml`. This is based on guards on
-    `MGOS_HAVE_*` statements.
+```
+bool mgos_mqtt_init(void) {
+#if MGOS_HAVE_PROMETHEUS_METRICS
+  mgos_prometheus_metrics_add_handler(metrics_mqtt, NULL);
+#endif
+  return true;
+}
+```
 
+As mentioned above, if the `prometheus-metrics` library is not included in
+the app's `mos.yml` manifest, no code will be compiled which makes the addition
+_non intrusive_.
 
 #### Application Specific Metrics
 
-Users are able to add their app's own metrics by installing a handler function,
-which is called at the end of `metrics_handle()`:
+Users are able to add their app's own metrics in the same way as libraries can.
+They do this by registering a handler function, which is called from
+`prometheus-metrics`.
 
 ```
 #include "mgos_prometheus_metrics.h"
 
-static void prometheus_metrics_fn(struct mg_connection *nc, void *fn_arg) {
+static void prometheus_metrics_fn(struct mg_connection *nc, void *user_data) {
   mg_printf(nc, "# Hello World\r\n");
-  (void) fn_arg;
+  (void) user_data;
 }
 
 enum mgos_app_init_result mgos_app_init(void) {
-  mgos_prometheus_metrics_set_handler(prometheus_metrics_fn, NULL);
+  mgos_prometheus_metrics_add_handler(prometheus_metrics_fn, NULL);
   return MGOS_APP_INIT_SUCCESS;
 }
 ```
