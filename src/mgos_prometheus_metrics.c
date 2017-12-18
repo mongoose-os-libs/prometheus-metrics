@@ -31,19 +31,19 @@ void mgos_prometheus_metrics_add_handler(mgos_prometheus_metrics_fn_t handler, v
 
 void mgos_prometheus_metrics_printf(struct mg_connection *nc, enum mgos_prometheus_metrics_type_t type, const char *name, const char *descr, const char *fmt, ...) {
   va_list ap;
-  mg_printf(nc, "# HELP %s %s\r\n", name, descr);
+  mg_printf(nc, "# HELP %s %s\n", name, descr);
   switch (type) {
     case(COUNTER):
-      mg_printf(nc, "# TYPE %s counter\r\n", name);
+      mg_printf(nc, "# TYPE %s counter\n", name);
       break;
     default:
-      mg_printf(nc, "# TYPE %s gauge\r\n", name);
+      mg_printf(nc, "# TYPE %s gauge\n", name);
   }
   mg_printf(nc, "%s%s", name, fmt[0]=='{' ? "" : " ");
   va_start(ap, fmt);
   mg_vprintf(nc, fmt, ap);
   va_end(ap);
-  mg_printf(nc, "\r\n");
+  mg_printf(nc, "\n");
   return;
 }
 
