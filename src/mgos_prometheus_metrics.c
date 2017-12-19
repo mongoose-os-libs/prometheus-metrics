@@ -7,6 +7,9 @@
 #include "mgos_http_server.h"
 #include "mgos_config.h"
 
+/* Platform specific extensions, see esp32/src/ for example */
+void metrics_platform(struct mg_connection *nc);
+
 struct metrics_handler {
   mgos_prometheus_metrics_fn_t handler;
   void *user_data;
