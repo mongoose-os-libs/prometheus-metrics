@@ -11,7 +11,7 @@
 // The typo below is correct, IDF SDK returns temperature in Fahrenheit
 // This is an undocumented feature -- symbol is defined in
 // esp-idf/components/esp32/lib/libphy.a(phy_chip_v7_cal.o)
-extern int8_t temprature_sens_read();
+extern uint8_t temprature_sens_read();
 
 #if MGOS_HAVE_WIFI
 static void metrics_wifi(struct mg_connection *nc) {
