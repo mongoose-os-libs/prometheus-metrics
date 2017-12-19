@@ -132,9 +132,12 @@ They do this by registering a handler function, which is called from
 
 ```
 #include "mgos_prometheus_metrics.h"
+uint32_t my_counter=0;
 
 static void prometheus_metrics_fn(struct mg_connection *nc, void *user_data) {
-  mg_printf(nc, "# Hello World\r\n");
+  mgos_prometheus_metrics_printf(nc, COUNTER,
+    "my_counter", "Total things counted",
+    "%u", my_counter);
   (void) user_data;
 }
 
