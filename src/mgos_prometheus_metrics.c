@@ -6,6 +6,7 @@
 #include "mgos_prometheus_metrics.h"
 #include "mgos_http_server.h"
 #include "mgos_config.h"
+#include "mgos_ro_vars.h"
 
 /* Platform specific extensions, see esp32/src/ for example */
 void metrics_platform(struct mg_connection *nc);
