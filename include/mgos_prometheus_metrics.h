@@ -5,6 +5,10 @@
 
 #include "mgos.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Metric types, represented as a float (or alternatively a uint32_t)
  *
  * GAUGE  : This is an absolute number.
@@ -59,3 +63,6 @@ typedef void (*mgos_prometheus_metrics_fn_t)(struct mg_connection *nc, void *use
  */
 void mgos_prometheus_metrics_add_handler(mgos_prometheus_metrics_fn_t handler, void *user_data);
 
+#ifdef __cplusplus
+}
+#endif
