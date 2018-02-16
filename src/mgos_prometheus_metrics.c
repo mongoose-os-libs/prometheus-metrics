@@ -79,7 +79,7 @@ static void metrics_mgos(struct mg_connection *nc) {
     "%u", mgos_get_cpu_freq());
 }
 
-static void metrics_send_chunks(struct mg_connection *nc) {
+void metrics_send_chunks(struct mg_connection *nc) {
   metrics_mgos(nc);
   metrics_platform(nc);
   call_metrics_handlers(nc);
