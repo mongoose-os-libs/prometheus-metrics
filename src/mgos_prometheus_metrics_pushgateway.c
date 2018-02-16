@@ -6,8 +6,8 @@
 #include "mgos_prometheus_metrics.h"
 #include <strings.h>
 
-static char *s_job;
-static char *s_instance;
+static char *s_job=NULL;
+static char *s_instance=NULL;
 
 void mgos_prometheus_metrics_send_chunks(struct mg_connection *nc);
 
@@ -89,7 +89,7 @@ void mgos_prometheus_metrics_push(const char *job, const char *instance) {
   s_job=strdup(job);
 
   if (s_instance) free(s_instance);
-  s_instance=strdup(instance);
+  if (instance) s_instance=strdup(instance);
   mg_connect(mgos_get_mgr(), mgos_sys_config_get_prometheus_pushgateway(), mgos_prometheus_metrics_post_handler, NULL);
 
   (void)instance;
