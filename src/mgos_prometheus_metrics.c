@@ -79,7 +79,7 @@ static void metrics_mgos(struct mg_connection *nc) {
     "%u", mgos_get_cpu_freq());
 }
 
-void metrics_send_chunks(struct mg_connection *nc) {
+void mgos_prometheus_metrics_send_chunks(struct mg_connection *nc) {
   metrics_mgos(nc);
   metrics_platform(nc);
   call_metrics_handlers(nc);
@@ -99,7 +99,7 @@ static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void
   mg_printf(nc, "Connection: close\r\n");
   mg_printf(nc, "\r\n");
 
-  metrics_send_chunks(nc);
+  mgos_prometheus_metrics_send_chunks(nc);
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
   (void) ev_data;
