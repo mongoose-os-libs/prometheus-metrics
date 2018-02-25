@@ -146,3 +146,36 @@ enum mgos_app_init_result mgos_app_init(void) {
   return MGOS_APP_INIT_SUCCESS;
 }
 ```
+
+### POSTing to Pushgateway
+
+Prometheus offers an intermediate receiver called a `Pushgateway`, see their
+[codebase](https://github.com/prometheus/pushgateway) for details. Some users
+may not wish to have their Mongoose IoT device listen on the network for HTTP
+connections to the `/metrics` endpoint, for security reasons. As an
+alternative, the library can be configured to close its serving endpoint, and
+push its metrics upstream instead. In `mos.yml`:
+
+```
+config_schema:
+  - ["prometheus.server_enable", false]
+  - ["prometheus.pushgateway", "s", "example.com:9091"]
+```
+
+An example program using a timer to POST every 5 seconds:
+
+```
+#include "mgos.h"
+#include "mgos_prometheus_metrics.h"
+
+static void timer_cb(void *user_data) {
+  mgos_prometheus_metrics_push("test1", "instance1");
+  (void) user_data;
+}
+
+enum mgos_app_init_result mgos_app_init(void) {
+  mgos_set_timer(5000, true, timer_cb, NULL);
+  return MGOS_APP_INIT_SUCCESS;
+}
+```
+

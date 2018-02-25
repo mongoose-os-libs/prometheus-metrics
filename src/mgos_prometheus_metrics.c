@@ -34,20 +34,19 @@ void mgos_prometheus_metrics_add_handler(mgos_prometheus_metrics_fn_t handler, v
 }
 
 void mgos_prometheus_metrics_printf(struct mg_connection *nc, enum mgos_prometheus_metrics_type_t type, const char *name, const char *descr, const char *fmt, ...) {
+  char chunk[500];
+  size_t chunklen=0;
   va_list ap;
-  mg_printf(nc, "# HELP %s %s\n", name, descr);
-  switch (type) {
-    case(COUNTER):
-      mg_printf(nc, "# TYPE %s counter\n", name);
-      break;
-    default:
-      mg_printf(nc, "# TYPE %s gauge\n", name);
-  }
-  mg_printf(nc, "%s%s", name, fmt[0]=='{' ? "" : " ");
+
+  chunk[0]='\0';
+  snprintf(chunk, sizeof(chunk), "# HELP %s %s\n# TYPE %s %s\n%s%s", name, descr, name, type==COUNTER?"counter":"gauge", name, fmt[0]=='{' ? "" : " ");
   va_start(ap, fmt);
-  mg_vprintf(nc, fmt, ap);
+  vsnprintf(chunk+strlen(chunk), sizeof(chunk)-strlen(chunk), fmt, ap);
   va_end(ap);
-  mg_printf(nc, "\n");
+  strncat(chunk, "\n", sizeof(chunk));
+  chunklen=strlen(chunk);
+  LOG(LL_DEBUG, ("Chunk '%s' with length %d", chunk, chunklen));
+  mg_printf(nc, "%X\r\n%s\r\n", chunklen, chunk);
   return;
 }
 
@@ -80,22 +79,27 @@ static void metrics_mgos(struct mg_connection *nc) {
     "%u", mgos_get_cpu_freq());
 }
 
+void mgos_prometheus_metrics_send_chunks(struct mg_connection *nc) {
+  metrics_mgos(nc);
+  metrics_platform(nc);
+  call_metrics_handlers(nc);
+  mg_printf(nc, "0\r\n\r\n");
+}
+
 static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void *user_data) {
 
   if (ev != MG_EV_HTTP_REQUEST)
     return;
 
-  mg_printf(nc, "HTTP/1.0 200 OK\r\n");
+  mg_printf(nc, "HTTP/1.1 200 OK\r\n");
   mg_printf(nc, "Server: Mongoose/"MG_VERSION"\r\n");
   mg_printf(nc, "Content-Type: text/plain\r\n");
+  mg_printf(nc, "Content-Encoding: chunked\r\n");
+  mg_printf(nc, "Transfer-Encoding: chunked\r\n");
   mg_printf(nc, "Connection: close\r\n");
   mg_printf(nc, "\r\n");
 
-  metrics_mgos(nc);
-  metrics_platform(nc);
-
-  call_metrics_handlers(nc);
-
+  mgos_prometheus_metrics_send_chunks(nc);
   nc->flags |= MG_F_SEND_AND_CLOSE;
 
   (void) ev_data;

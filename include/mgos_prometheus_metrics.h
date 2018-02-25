@@ -63,6 +63,12 @@ typedef void (*mgos_prometheus_metrics_fn_t)(struct mg_connection *nc, void *use
  */
 void mgos_prometheus_metrics_add_handler(mgos_prometheus_metrics_fn_t handler, void *user_data);
 
+/* Perform an HTTP POST request against the Prometheus Pushgateway specified in
+ * the flag prometheus.pushgateway in mos.yml, using 'job' and 'instance'.
+ * The job argument is mandatory, but instance can be passed NULL.
+ */
+void mgos_prometheus_metrics_push(const char *job, const char *instance);
+
 #ifdef __cplusplus
 }
 #endif
