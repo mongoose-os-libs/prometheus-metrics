@@ -24,7 +24,7 @@ perception of your products.
 `prometheus-metrics` is a library component that can be added to the app's
 `mos.yml` file without any configuration needed out of the box, and it pulls
 in the `http-server` module. The library opens a `/metrics` endpoint which
-exposes the operating system and library vitalsigns to Prometheus. 
+exposes the operating system and library vitalsigns to Prometheus.
 
 By adding the library to the build manifest in `mos.yml`, a compiler define
 `MGOS_HAVE_PROMETHEUS_METRICS` is set, which other libraries can use to
@@ -179,3 +179,9 @@ enum mgos_app_init_result mgos_app_init(void) {
 }
 ```
 
+
+# Disclaimer
+
+This project is not an official Google project. It is not supported by Google
+and Google specifically disclaims all warranties as to its quality,
+merchantability, or fitness for a particular purpose.
