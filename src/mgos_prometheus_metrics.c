@@ -18,6 +18,9 @@
 #include "mgos_http_server.h"
 #include "mgos_config.h"
 #include "mgos_ro_vars.h"
+#include "cache.h"
+
+static struct cache *metrics_cache=NULL;
 
 /* Platform specific extensions, see esp32/src/ for example */
 void metrics_platform(struct mg_connection *nc);
@@ -50,7 +53,19 @@ void mgos_prometheus_metrics_printf(struct mg_connection *nc, enum mgos_promethe
   va_list ap;
 
   chunk[0]='\0';
-  snprintf(chunk, sizeof(chunk), "# HELP %s %s\n# TYPE %s %s\n%s%s", name, descr, name, type==COUNTER?"counter":"gauge", name, fmt[0]=='{' ? "" : " ");
+
+  /* Prometheus parser will only allow a metric to have one TYPE and HELP line,
+   * which means that if applicatinos call mgos_prometheus_metrics_printf()
+   * multiple times on the same name, the parser borks. Therefore, we have to
+   * keep a cache of the names we've already output. This is implemented in
+   * cache.[ch]
+   */
+  if (!cache_haskey(metrics_cache, name)) {
+    snprintf(chunk, sizeof(chunk), "# HELP %s %s\n# TYPE %s %s\n%s%s", name, descr, name, type==COUNTER?"counter":"gauge", name, fmt[0]=='{' ? "" : " ");
+    cache_addkey(metrics_cache, name);
+  } else {
+    snprintf(chunk, sizeof(chunk), "%s%s", name, fmt[0]=='{' ? "" : " ");
+  }
   va_start(ap, fmt);
   vsnprintf(chunk+strlen(chunk), sizeof(chunk)-strlen(chunk), fmt, ap);
   va_end(ap);
@@ -91,10 +106,16 @@ static void metrics_mgos(struct mg_connection *nc) {
 }
 
 void mgos_prometheus_metrics_send_chunks(struct mg_connection *nc) {
+
+  // Create a string based cache for metric names
+  metrics_cache=cache_create();
+
   metrics_mgos(nc);
   metrics_platform(nc);
   call_metrics_handlers(nc);
   mg_printf(nc, "0\r\n\r\n");
+
+  cache_destroy(&metrics_cache);
 }
 
 static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data, void *user_data) {
