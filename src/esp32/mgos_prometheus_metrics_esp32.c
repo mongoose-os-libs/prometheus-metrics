@@ -13,7 +13,7 @@
 // esp-idf/components/esp32/lib/libphy.a(phy_chip_v7_cal.o)
 extern uint8_t temprature_sens_read();
 
-#if MGOS_HAVE_WIFI
+#ifdef MGOS_HAVE_WIFI
 static void metrics_wifi(struct mg_connection *nc) {
   wifi_ap_record_t info;
   int rssi;
@@ -40,7 +40,7 @@ void metrics_platform(struct mg_connection *nc) {
   mgos_prometheus_metrics_printf(nc, GAUGE, "esp32_temperature", "ESP32 Internal Temperature in Celcius",
     "%.1f", ((float)temprature_sens_read()-32)/1.8);
 
-#if MGOS_HAVE_WIFI
+#ifdef MGOS_HAVE_WIFI
   metrics_wifi(nc);
 #endif // MGOS_HAVE_WIFI
 }
