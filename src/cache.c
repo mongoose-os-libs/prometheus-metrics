@@ -34,7 +34,7 @@ bool cache_addkey(struct cache *cache, const char *key) {
 
   if (0 == cache->len) {
 //    LOG(LL_DEBUG, ("Adding key '%s' to empty cache", key));
-    cache->string=malloc(keylen);
+    cache->string=malloc(keylen+1);
     cache->len=keylen+1;
     memcpy(cache->string, key, keylen);
     cache->string[cache->len-1]='\0';
