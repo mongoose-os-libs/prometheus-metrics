@@ -13,8 +13,24 @@ struct cache *cache_create(void) {
 }
 
 bool cache_haskey(struct cache *cache, const char *key) {
+  const char *element, *token;
   if (!cache || !cache->string) return false;
-  return (NULL != strstr(cache->string, key));
+
+  element=cache->string;
+
+  while (*element) {
+    uint16_t len;
+
+    for (token=element+1; *token && *token != CACHE_SEPARATOR; token++) ;
+    len=token-element;
+    if ((len == strlen(key)) && (0 == strncmp(element, key, len)))
+      return true;
+
+    if (*token == CACHE_SEPARATOR) element=token+1;
+    else element=token;
+  }
+
+  return false;
 }
 
 uint16_t cache_numkeys(struct cache *cache) {

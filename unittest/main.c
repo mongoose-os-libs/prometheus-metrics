@@ -44,6 +44,10 @@ void test_cache() {
   ASSERT(ret, "Key 'Hello' expected in cache");
   cache_loginfo(c);
 
+  ret = cache_haskey(c, "Hell");
+  ASSERT(!ret, "Key 'Hell' not expected in cache");
+  cache_loginfo(c);
+
   ret = cache_haskey(c, "World");
   ASSERT(ret, "Key 'World' expected in cache");
   cache_loginfo(c);
