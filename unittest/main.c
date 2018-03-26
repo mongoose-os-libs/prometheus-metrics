@@ -13,7 +13,7 @@ void test_cache_keys_bytes(struct cache *c, uint16_t expected_num, uint16_t expe
 
   i=cache_numbytes(c);
   ASSERT(expected_bytes==i, "Number of bytes in cache is mismatched");
-  LOG(LL_INFO, ("Bytes: Wanted %u, got %u", expected_num, i));
+  LOG(LL_INFO, ("Bytes: Wanted %u, got %u", expected_bytes, i));
 }
 
 
