@@ -26,7 +26,7 @@ extern "C" {
  * COUNTER: This is a monotonic increasing number.
  */
 enum mgos_prometheus_metrics_type_t {
-  GAUGE = 0,
+  GAUGE   = 0,
   COUNTER = 1,
 };
 

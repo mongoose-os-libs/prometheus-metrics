@@ -3,10 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define CACHE_SEPARATOR     0x1E        // ASCII character for "Record Separator"
+#define CACHE_SEPARATOR    0x1E         // ASCII character for "Record Separator"
 
 struct cache {
-  char *string;
+  char *   string;
   uint16_t len;
   uint16_t num;
 };
