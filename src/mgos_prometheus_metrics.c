@@ -16,6 +16,9 @@
 
 #include "mgos_prometheus_metrics.h"
 #include "mgos_http_server.h"
+#ifdef MGOS_HAVE_WIFI
+#include "mgos_wifi.h"
+#endif
 #include "mgos_config.h"
 #include "mgos_ro_vars.h"
 #include "cache.h"
@@ -103,6 +106,10 @@ static void metrics_mgos(struct mg_connection *nc) {
 
   mgos_prometheus_metrics_printf(nc, GAUGE, "mgos_cpu_freq", "CPU Frequency in Hz", 
     "%u", mgos_get_cpu_freq());
+
+#ifdef MGOS_HAVE_WIFI
+  mgos_prometheus_metrics_printf(nc, GAUGE, "wifi_rssi", "WiFi RSSI", "%d", mgos_wifi_sta_get_rssi());
+#endif
 }
 
 void mgos_prometheus_metrics_send_chunks(struct mg_connection *nc) {
