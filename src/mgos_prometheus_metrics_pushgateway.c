@@ -41,7 +41,7 @@ static void mgos_prometheus_post_begin(struct mg_connection *nc) {
   mg_printf(nc, "Transfer-Encoding: chunked\r\n");
   mg_printf(nc, "Content-Encoding: chunked\r\n");
   mg_printf(nc, "Content-Type: text/plain\r\n");
-  mg_printf(nc, "Connection: keepalive\r\n");
+  mg_printf(nc, "Connection: close\r\n");
   mg_printf(nc, "\r\n");
 }
 
@@ -52,6 +52,10 @@ static void mgos_prometheus_metrics_post_finish(struct mg_connection *nc) {
     return;
   }
   io = &nc->recv_mbuf;
+  if (!io) {
+    LOG(LL_INFO, ("No receive mbuf"));
+    return;
+  }
 
   if (0 == strncasecmp(io->buf, "HTTP/1.1 202", 12)) {
     LOG(LL_INFO, ("Prometheus POST to http://%s%s successful", mgos_sys_config_get_prometheus_pushgateway(), mgos_prometheus_post_uri()));
@@ -68,6 +72,7 @@ static void mgos_prometheus_metrics_post_handler(struct mg_connection *nc, int e
     if (connect_status == 0) {
 //        LOG(LL_DEBUG, ("connect() success"));
       mgos_prometheus_post_begin(nc);
+      mgos_prometheus_metrics_send_chunks(nc);
     } else {
       LOG(LL_ERROR, ("connect() error: %s", strerror(connect_status)));
     }
@@ -86,7 +91,6 @@ static void mgos_prometheus_metrics_post_handler(struct mg_connection *nc, int e
 
   case MG_EV_SEND:
 //      LOG(LL_DEBUG, ("data sent"));
-    mgos_prometheus_metrics_send_chunks(nc);
     break;
 
   case MG_EV_CLOSE:
