@@ -21,5 +21,6 @@ libs:
 tags:
   - c
   - http
+  - docs:cloud:Prometheus metrics
 
 manifest_version: 2017-09-29
