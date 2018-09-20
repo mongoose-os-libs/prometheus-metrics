@@ -31,16 +31,18 @@ enum mgos_prometheus_metrics_type_t {
 };
 
 /* Output a formatted metric tuple to the network connection. For example:
- *
+ * ```c
  * uint32_t my_counter=1234;
  * mgos_prometheus_metrics_printf(nc, COUNTER, "number_of_requests", "My Description",
  *                                "%u", my_counter);
+ * ```
  *
  * will output:
+ * ```
  * # TYPE number_of_requests counter
  * # HELP number_of_requests My Description
  * number_of_requests 1234
- *
+ * ```
  */
 void mgos_prometheus_metrics_printf(struct mg_connection *nc,
                                     enum mgos_prometheus_metrics_type_t type,
@@ -56,6 +58,7 @@ typedef void (*mgos_prometheus_metrics_fn_t)(struct mg_connection *nc, void *use
  * register any number of handlers, which will be called one after another.
  * Example:
  *
+ * ```c
  * #include "mgos_prometheus_metrics.h"
  * uint32_t my_counter=0;
  *
@@ -70,7 +73,7 @@ typedef void (*mgos_prometheus_metrics_fn_t)(struct mg_connection *nc, void *use
  *   mgos_prometheus_metrics_add_handler(prometheus_metrics_fn, NULL);
  *   return MGOS_APP_INIT_SUCCESS;
  * }
- *
+ * ```
  */
 void mgos_prometheus_metrics_add_handler(mgos_prometheus_metrics_fn_t handler, void *user_data);
 
