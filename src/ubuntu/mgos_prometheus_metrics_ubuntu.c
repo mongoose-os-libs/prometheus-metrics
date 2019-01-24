@@ -17,5 +17,5 @@
 #include "mgos_prometheus_metrics.h"
 
 void metrics_platform(struct mg_connection *nc) {
-  (void)nc;
+  (void) nc;
 }

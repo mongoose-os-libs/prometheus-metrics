@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "mgos_prometheus_metrics.h"
 #include <esp_system.h>
 #include <freertos/task.h>
+#include "mgos_prometheus_metrics.h"
 
 // The typo below is correct, IDF SDK returns temperature in Fahrenheit
 // This is an undocumented feature -- symbol is defined in
@@ -27,12 +27,17 @@ void metrics_platform(struct mg_connection *nc) {
   esp_chip_info_t ci;
 
   esp_chip_info(&ci);
-  mgos_prometheus_metrics_printf(nc, GAUGE, "esp32_chip_info", "ESP32 Chip Information",
-    "{model=\"%d\",cores=\"%d\",revision=\"%d\",features=\"0x%x\",sdk=\"%s\"} 1", ci.model, ci.cores, ci.revision, ci.features, system_get_sdk_version());
+  mgos_prometheus_metrics_printf(
+      nc, GAUGE, "esp32_chip_info", "ESP32 Chip Information",
+      "{model=\"%d\",cores=\"%d\",revision=\"%d\",features=\"0x%x\",sdk=\"%s\"}"
+      " 1",
+      ci.model, ci.cores, ci.revision, ci.features, system_get_sdk_version());
 
-  mgos_prometheus_metrics_printf(nc, GAUGE, "esp32_num_tasks", "ESP32 FreeRTOS task count",
-    "%d", uxTaskGetNumberOfTasks());
+  mgos_prometheus_metrics_printf(nc, GAUGE, "esp32_num_tasks",
+                                 "ESP32 FreeRTOS task count", "%d",
+                                 uxTaskGetNumberOfTasks());
 
-  mgos_prometheus_metrics_printf(nc, GAUGE, "esp32_temperature", "ESP32 Internal Temperature in Celcius",
-    "%.1f", ((float)temprature_sens_read()-32)/1.8);
+  mgos_prometheus_metrics_printf(
+      nc, GAUGE, "esp32_temperature", "ESP32 Internal Temperature in Celcius",
+      "%.1f", ((float) temprature_sens_read() - 32) / 1.8);
 }

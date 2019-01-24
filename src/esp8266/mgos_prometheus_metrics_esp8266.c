@@ -18,6 +18,8 @@
 #include "user_interface.h"
 
 void metrics_platform(struct mg_connection *nc) {
-  mgos_prometheus_metrics_printf(nc, GAUGE, "esp8266_chip_info", "ESP8266 Chip Information",
-    "{sdk=\"%s\",cpu_freq=\"%u\"} 1", system_get_sdk_version(), system_get_cpu_freq());
+  mgos_prometheus_metrics_printf(
+      nc, GAUGE, "esp8266_chip_info", "ESP8266 Chip Information",
+      "{sdk=\"%s\",cpu_freq=\"%u\"} 1", system_get_sdk_version(),
+      system_get_cpu_freq());
 }
