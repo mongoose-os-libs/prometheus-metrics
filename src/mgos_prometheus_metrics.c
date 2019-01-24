@@ -76,8 +76,8 @@ void mgos_prometheus_metrics_printf(struct mg_connection *nc, enum mgos_promethe
   va_end(ap);
   strncat(chunk, "\n", sizeof(chunk));
   chunklen = strlen(chunk);
-  LOG(LL_DEBUG, ("Chunk '%s' with length %d", chunk, chunklen));
-  mg_printf(nc, "%X\r\n%s\r\n", chunklen, chunk);
+  LOG(LL_DEBUG, ("Chunk '%s' with length %d", chunk, (int) chunklen));
+  mg_printf(nc, "%X\r\n%s\r\n", (int) chunklen, chunk);
   return;
 }
 
