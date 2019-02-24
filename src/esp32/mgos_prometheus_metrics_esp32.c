@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <FreeRTOS.h>
 #include <esp_system.h>
 #include <freertos/task.h>
 #include "mgos_prometheus_metrics.h"
