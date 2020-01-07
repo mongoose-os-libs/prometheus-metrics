@@ -58,7 +58,7 @@ static void mgos_prometheus_metrics_post_finish(struct mg_connection *nc) {
     return;
   }
 
-  if (0 == strncasecmp(io->buf, "HTTP/1.1 202", 12)) {
+  if (0 == strncasecmp(io->buf, "HTTP/1.1 2", 10)) {
     LOG(LL_INFO, ("Prometheus POST to http://%s%s successful",
                   mgos_sys_config_get_prometheus_pushgateway(),
                   mgos_prometheus_post_uri()));
