@@ -22,6 +22,7 @@
 #include "cache.h"
 #include "mgos_config.h"
 #include "mgos_ro_vars.h"
+#include "mgos_time.h"
 
 static struct cache *metrics_cache = NULL;
 
