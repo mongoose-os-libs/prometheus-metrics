@@ -16,6 +16,7 @@
 
 #include "mgos_prometheus_metrics.h"
 #include "mgos_http_server.h"
+#include "mgos_rpc.h"
 #ifdef MGOS_HAVE_WIFI
 #include "mgos_wifi.h"
 #endif
@@ -165,10 +166,24 @@ static void metrics_handle(struct mg_connection *nc, int ev, void *ev_data,
   (void) user_data;
 }
 
+static void metric_rpc_cb(struct mg_rpc_request_info *ri, void *cb_arg,
+                   struct mg_rpc_frame_info *fi, struct mg_str args) {
+  
+  // populate metric data
+  mg_rpc_send_responsef(ri, "");
+
+  (void) cb_arg;
+  (void) fi;
+}
+
 bool mgos_prometheus_metrics_init(void) {
   if (mgos_sys_config_get_prometheus_server_enable()) {
     mgos_register_http_endpoint(mgos_sys_config_get_prometheus_server_uri(),
                                 metrics_handle, NULL);
+  }
+
+  if (mgos_sys_config_get_prometheus_rpc_enable()){
+    mg_rpc_add_handler(mgos_rpc_get_global(), "Prometheus.Metric", "{}", metric_rpc_cb, NULL);
   }
 
   return true;

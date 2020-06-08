@@ -12,11 +12,13 @@ includes:
 config_schema:
   - ["prometheus", "o", {title: "Prometheus settings"}]
   - ["prometheus.server_enable", "b", true, {title: "Enable Prometheus HTTP endpoint"}]
+  - ["prometheus.rpc_enable", "b", true, {title: "Enable Prometheus RPC"}]
   - ["prometheus.server_uri", "s", "/metrics", {title: "Serve Prometheus from this uri"}]
   - ["prometheus.pushgateway", "s", "example.com:9091", {title: "Prometheus pushgateway host:port"}]
 
 libs:
   - origin: https://github.com/mongoose-os-libs/http-server
+  - origin: https://github.com/mongoose-os-libs/rpc-common
 
 tags:
   - c
