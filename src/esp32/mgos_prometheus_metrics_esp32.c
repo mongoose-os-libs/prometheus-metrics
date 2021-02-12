@@ -32,7 +32,7 @@ void metrics_platform(struct mg_connection *nc) {
       nc, GAUGE, "esp32_chip_info", "ESP32 Chip Information",
       "{model=\"%d\",cores=\"%d\",revision=\"%d\",features=\"0x%x\",sdk=\"%s\"}"
       " 1",
-      ci.model, ci.cores, ci.revision, ci.features, system_get_sdk_version());
+      ci.model, ci.cores, ci.revision, ci.features, esp_get_idf_version());
 
   mgos_prometheus_metrics_printf(nc, GAUGE, "esp32_num_tasks",
                                  "ESP32 FreeRTOS task count", "%d",
