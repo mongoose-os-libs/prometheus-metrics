@@ -39,6 +39,10 @@ static void mgos_prometheus_post_begin(struct mg_connection *nc) {
   mg_printf(nc, "POST %s HTTP/1.1\r\n", mgos_prometheus_post_uri());
   mg_printf(nc, "Host: %s\r\n", mgos_sys_config_get_prometheus_pushgateway());
   mg_printf(nc, "User-Agent: Mongoose/" MG_VERSION "\r\n");
+  if (mgos_sys_config_get_prometheus_pushgateway_auth()) {
+    mg_printf(nc, "Authorization: %s\r\n",
+              mgos_sys_config_get_prometheus_pushgateway_auth());
+  }
   mg_printf(nc, "Transfer-Encoding: chunked\r\n");
   mg_printf(nc, "Content-Encoding: chunked\r\n");
   mg_printf(nc, "Content-Type: text/plain\r\n");
