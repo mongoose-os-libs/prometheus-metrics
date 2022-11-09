@@ -179,6 +179,14 @@ enum mgos_app_init_result mgos_app_init(void) {
 }
 ```
 
+If needed you can also specify the `Authorization` header for pushing metrics.
+You can do this by specifying following in `mos.yml`:
+
+```
+config_schema:
+  - ["prometheus.pushgateway_auth", "Basic YWxhZGRpbjpvcGVuc2VzYW1l"]
+```
+
 
 # Disclaimer
 
